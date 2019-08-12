@@ -12,6 +12,7 @@ class ActiveRelationResourceTest < ActiveSupport::TestCase
   end
 
   def test_find_fragments_no_attributes
+    byebug
     filters = {}
     posts_identities = ARPostResource.find_fragments(filters)
 

@@ -1,4 +1,40 @@
-require_relative 'schema'
+class Session < ActiveRecord::Base
+  self.primary_key = "id"
+  has_many :responses
+end
+
+class Response < ActiveRecord::Base
+  belongs_to :session
+  has_one :paragraph, :class_name => "ResponseText::Paragraph"
+
+  def response_type
+    case self.type
+    when "Response::SingleTextbox"
+      "single_textbox"
+    else
+      "question"
+    end
+  end
+
+  def response_type=type
+    self.type = case type
+    when "single_textbox"
+      "Response::SingleTextbox"
+    else
+      "Response"
+    end
+  end
+end
+
+class Response::SingleTextbox < Response
+  has_one :paragraph, :class_name => "ResponseText::Paragraph", :foreign_key => :response_id
+end
+
+ class ResponseText < ActiveRecord::Base
+end
+
+ class ResponseText::Paragraph < ResponseText
+end
 
 ActiveSupport::Inflector.inflections(:en) do |inflect|
   inflect.uncountable 'preferences'
@@ -313,8 +349,8 @@ class Thing < ActiveRecord::Base
 end
 
 class RelatedThing < ActiveRecord::Base
-  belongs_to :from, class_name: Thing, foreign_key: :from_id
-  belongs_to :to, class_name: Thing, foreign_key: :to_id
+  belongs_to :from, class_name: "Thing", foreign_key: :from_id
+  belongs_to :to, class_name: "Thing", foreign_key: :to_id
 end
 
 class Question < ActiveRecord::Base
@@ -344,6 +380,59 @@ module Api
     class Customer < Customer
     end
   end
+end
+
+
+class Storage < ActiveRecord::Base
+  has_one :keeper, class_name: 'Keeper', as: :keepable
+end
+
+class Keeper < ActiveRecord::Base
+  belongs_to :keepable, polymorphic: true
+end
+
+class AccessCard < ActiveRecord::Base
+  has_many :workers
+end
+
+class Worker < ActiveRecord::Base
+  belongs_to :access_card
+end
+
+class Agency < ActiveRecord::Base
+end
+
+class Indicator < ActiveRecord::Base
+  belongs_to :agency
+  has_many :widgets, primary_key: :import_id, foreign_key: :indicator_import_id
+end
+
+class Widget < ActiveRecord::Base
+  belongs_to :indicator, primary_key: :import_id, foreign_key: :indicator_import_id
+end
+
+class Robot < ActiveRecord::Base
+end
+
+class Painter < ActiveRecord::Base
+  has_many :paintings
+end
+
+class Painting < ActiveRecord::Base
+  belongs_to :painter
+  has_many :collectors
+end
+
+class Collector < ActiveRecord::Base
+  belongs_to :painting
+end
+
+class List < ActiveRecord::Base
+  has_many :items, class_name: 'ListItem', inverse_of: :list
+end
+
+class ListItem < ActiveRecord::Base
+  belongs_to :list, inverse_of: :items
 end
 
 ### PORO Data - don't do this in a production app

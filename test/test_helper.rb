@@ -1,5 +1,5 @@
-require 'simplecov'
 require 'database_cleaner'
+require 'simplecov'
 
 # To run tests with coverage:
 # COVERAGE=true bundle exec rake test
@@ -23,7 +23,8 @@ end
 
 ENV["ORM"] = "active_record"
 
-require_relative "support/orm/#{ENV["ORM"]}/initialize"
+require_relative "support/#{ENV["ORM"]}/initialize"
+require_relative "support/inflections"
 require 'rails/test_help'
 require 'minitest/mock'
 require 'jsonapi-resources'
@@ -219,7 +220,7 @@ end
 
 TestApp.initialize!
 
-require_relative "support/orm/#{ENV["ORM"]}/models"
+require_relative "support/#{ENV["ORM"]}/models"
 require_relative "support/controllers_resources_processors"
 
 module Pets
@@ -722,4 +723,4 @@ class OptionalRouteFormatter < JSONAPI::RouteFormatter
   end
 end
 
-require_relative "support/orm/#{ENV["ORM"]}/setup"
+require_relative "support/#{ENV["ORM"]}/setup"
